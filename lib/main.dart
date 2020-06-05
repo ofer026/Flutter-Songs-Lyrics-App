@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -41,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String textToDisplayOnAlert = "";
 
   String lyrics = "";
+
+  bool textState = false;
 
   Color textBoxColor = Colors.white;
 
@@ -87,10 +91,29 @@ class _MyHomePageState extends State<MyHomePage> {
         textBoxColor = Colors.blue;
       }
       lyrics = jsonObject["result"]["track"]["text"];
-      //lyrics += "\n\n\n";
+      //textState = true;
     });
+    textAnimation();
+    /*
+    print("Starting to sleep for 1 second");
+    await Future.delayed(const Duration(seconds: 1));
+    print("Finshed sleeping for 1 second");
+    print('1: $textState');
+    setState(() {
+      textState = false;
+    });
+    print('2: $textState');
+     */
+  }
 
-
+  textAnimation() async {
+    setState(() {
+      textState = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 800));
+    setState(() {
+      textState = false;
+    });
   }
 
   showAlertDialog(String text) {
@@ -208,10 +231,20 @@ class _MyHomePageState extends State<MyHomePage> {
                               builder: (BuildContext context, ScrollController scrollController){
                                 return SingleChildScrollView(
                                     controller: scrollController,
-                                    child: Text(
-                                      '$lyrics\n\n\n\n',
-                                      style: TextStyle(
+                                    child: AnimatedDefaultTextStyle(
+                                      duration: const Duration(milliseconds: 540),
+                                      curve: Curves.easeInOut,
+                                      style: textState ? TextStyle(
+                                       fontSize: 22,
+                                        //fontWeight: FontWeight.w900
+                                      )
+                                      : TextStyle(
                                         fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.black
+                                      ),
+                                      child: Text(
+                                        '$lyrics\n\n\n\n',
                                       ),
                                     ),
                                   );
