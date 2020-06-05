@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
         textBoxColor = Colors.blue;
       }
       lyrics = jsonObject["result"]["track"]["text"];
-      lyrics += "\n\n\n";
+      //lyrics += "\n\n\n";
     });
 
 
@@ -206,18 +206,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             initialChildSize: 0.8,
                             minChildSize: 0.8,
                               builder: (BuildContext context, ScrollController scrollController){
-                                return SizedBox(
-                                  //height: double.infinity,
-                                  child: SingleChildScrollView(
+                                return SingleChildScrollView(
                                     controller: scrollController,
                                     child: Text(
-                                      '$lyrics',
+                                      '$lyrics\n\n\n\n',
                                       style: TextStyle(
                                         fontSize: 18,
                                       ),
                                     ),
-                                  ),
-                                );
+                                  );
                               },
                             ),
                         ),
