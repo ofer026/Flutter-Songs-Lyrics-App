@@ -1,11 +1,7 @@
-import 'dart:core';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/rendering.dart';
-
 
 
 void main() {
@@ -37,10 +33,14 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin{
 
   _MyHomePageState();
   String textToDisplayOnAlert = "";
+
+  AnimationController slideController;
+  Animation<Offset> slideOffsetAnimation;
 
   String lyrics = "";
 
@@ -56,14 +56,34 @@ class _MyHomePageState extends State<MyHomePage> {
   final artistTextController = TextEditingController();
   final songTextController = TextEditingController();
 
+  @override
+  void initState(){
+    super.initState();
+    slideController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    wait();
+    slideController..forward();
+    slideOffsetAnimation = Tween<Offset>(
+      begin: const Offset(-6.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: slideController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  wait() async {
+    await Future.delayed(Duration(seconds: 2));
+  }
+
   getLyrics() async {
     String artist = artistTextController.text.toString();
     String song = songTextController.text.toString();
 
     if(artist == '' || song == '') {
-      setState(() {
-        textToDisplayOnAlert = "One of the fields is empty!";
-      });
+      textToDisplayOnAlert = "One of the fields is empty!";
       showAlertDialog(textToDisplayOnAlert);
       return;
     }
@@ -78,9 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if(content == "{\"error\":\"Lyric no found, try again later.\"}") {
       //TODO: Show an error msg on screen
       print("Error! song not found!");
-      setState(() {
-        textToDisplayOnAlert = "Song not found!";
-      });
+      textToDisplayOnAlert = "Song not found!";
       showAlertDialog(textToDisplayOnAlert);
       return;
     }
@@ -94,16 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
       //textState = true;
     });
     textAnimation();
-    /*
-    print("Starting to sleep for 1 second");
-    await Future.delayed(const Duration(seconds: 1));
-    print("Finshed sleeping for 1 second");
-    print('1: $textState');
-    setState(() {
-      textState = false;
-    });
-    print('2: $textState');
-     */
   }
 
   textAnimation() async {
@@ -140,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose(){
     artistTextController.dispose();
     songTextController.dispose();
+    slideController.dispose();
     super.dispose();
   }
 
@@ -150,187 +159,137 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("Songs Lyrics App"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: <Widget>[
-            Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child:
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Column(
-                      //mainAxisAlignment: MainAxisAlignment.start,
-                      //mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text("Artist",
-                          textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 20),
+      body:
+        SlideTransition(
+          position: slideOffsetAnimation,
+          child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: <Widget>[
+                  Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child:
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Column(
+                            //mainAxisAlignment: MainAxisAlignment.start,
+                            //mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text("Artist",
+                                textAlign: TextAlign.start,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 14),
-                    TextField(
-                      decoration: InputDecoration(hintText: "Enter artist name"),
-                      controller: artistTextController,
-                    ),
-                    SizedBox(height: 30,),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Song",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(fontSize: 20),),
-                    ),
-                    SizedBox(height: 14,),
-                    TextField(
-                      decoration: InputDecoration(hintText: "Enter song name"),
-                      controller: songTextController,
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 4.0),
-                      child: OutlineButton(
-                        child: Text("Get lyrics"),
-                        onPressed: () => getLyrics(),
-                        highlightedBorderColor: Colors.black,
-                        borderSide: BorderSide(
-                          width: 2,
-                          color: Colors.black
-                        ),
-                      ),
-                    ),
-                    Container(
-                      //padding: const EdgeInsets.only(top: 15, bottom: 15),
-                      margin: const EdgeInsets.only(top: 2.0, bottom: 8),
-                      width: MediaQuery.of(context).size.width,
-                      height: 2,
-                      color: Colors.black,
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 410,
-                      child: AnimatedPadding(
-                        padding: EdgeInsets.all(textBoxPaddingValue),
-                        duration: const Duration(seconds: 1),
-                        curve: Curves.easeInOut,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: textBoxColor,
-                              width: 1.0
-                            )
-                          ),
-                          child: DraggableScrollableSheet(
-                            initialChildSize: 0.8,
-                            minChildSize: 0.8,
-                              builder: (BuildContext context, ScrollController scrollController){
-                                return SingleChildScrollView(
-                                    controller: scrollController,
-                                    child: AnimatedDefaultTextStyle(
-                                      duration: const Duration(milliseconds: 540),
-                                      curve: Curves.easeInOut,
-                                      style: textState ? TextStyle(
-                                       fontSize: 22,
-                                        //fontWeight: FontWeight.w900
-                                      )
-                                      : TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.normal,
-                                        color: Colors.black
-                                      ),
-                                      child: Text(
-                                        '$lyrics\n\n\n\n',
-                                      ),
-                                    ),
-                                  );
-                              },
+                          SizedBox(height: 14),
+                          TextField(
+                            decoration: InputDecoration(
+                                hintText: "Enter artist name",
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.6,
+                                )
+                              )
                             ),
-                        ),
+                            controller: artistTextController,
+                          ),
+                          SizedBox(height: 30,),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Song",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(fontSize: 20),),
+                          ),
+                          SizedBox(height: 14,),
+                          TextField(
+                            decoration: InputDecoration(
+                                hintText: "Enter song name",
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.6
+                                  )
+                                )
+                            ),
+                            controller: songTextController,
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 4.0),
+                            child: OutlineButton(
+                              child: Text("Get lyrics"),
+                              onPressed: () => getLyrics(),
+                              highlightedBorderColor: Colors.black,
+                              borderSide: BorderSide(
+                                width: 2,
+                                color: Colors.black
+                              ),
+                            ),
+                          ),
+                          Container(
+                            //padding: const EdgeInsets.only(top: 15, bottom: 15),
+                            margin: const EdgeInsets.only(top: 2.0, bottom: 8),
+                            width: MediaQuery.of(context).size.width,
+                            height: 2,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: 410,
+                            child: AnimatedPadding(
+                              padding: EdgeInsets.all(textBoxPaddingValue),
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeInOut,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: textBoxColor,
+                                    width: 1.0
+                                  )
+                                ),
+                                child: DraggableScrollableSheet(
+                                  initialChildSize: 0.8,
+                                  minChildSize: 0.8,
+                                    builder: (BuildContext context, ScrollController scrollController){
+                                      return SingleChildScrollView(
+                                          controller: scrollController,
+                                          child: AnimatedDefaultTextStyle(
+                                            duration: const Duration(milliseconds: 540),
+                                            curve: Curves.easeInOut,
+                                            style: textState ? TextStyle(
+                                             fontSize: 22,
+                                              //fontWeight: FontWeight.w900
+                                            )
+                                            : TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black
+                                            ),
+                                            child: Text(
+                                              '$lyrics\n\n\n\n',
+                                            ),
+                                          ),
+                                        );
+                                    },
+                                  ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    /*
-                    isDisplayAlert ? showAlertDialog(textToDisplayOnAlert) : Container(
-                      color: Colors.white,
-                    )*/
-                  ],
-                ),
+                  ),
+                  )
+                ],
+              ),
             ),
-            )
-          ],
         ),
-      ),
-
-    );
-  }
-}
-/*
-class Alert extends StatefulWidget{
-  @override
-  State<StatefulWidget> createState() {
-
-  }
-
-}
-
-
-class alert extends StatefulWidget{
-  bool isDisplay;
-  String textToDisplay;
-
-  alert(bool isDisplay, String textToDisplay){
-    this.isDisplay = isDisplay;
-    this.textToDisplay = textToDisplay;
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    _alertState(this.isDisplay, this.textToDisplay);
-  }}
-
-  class _alertState extends State<alert>{
-    bool isDisplay;
-    String textToDisplay;
-
-    _alertState(bool isToDisplay, String textToDisplay) {
-      this.isDisplay = isToDisplay;
-      this.textToDisplay = textToDisplay;
-    }
-
-    close(){
-      setState(() {
-        this.isDisplay = false;
-      });
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return isDisplay ? AlertDialog(content: Text(this.textToDisplay),
-        actions: <Widget>[
-          MaterialButton(
-            child: Icon(Icons.close, color: Colors.black,),
-            onPressed: () => close(),
-          )
-        ],)
-        : SizedBox(
-        height: 1,
-        width: 1,
       );
-    }
   }
+}
 
- */
-
-  /*
-  class Alert extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(content: Text(this.),)
-  }
-
-  }
-   */
