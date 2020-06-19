@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'package:songslyricsapp/CustomWidgets/drawer.dart';
 
 
 void main() {
@@ -88,14 +89,16 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    var request = await HttpClient().getUrl(Uri.parse(baseURL + "$artist/$song?apikey=$APIKey"));
-    var response = await request.close();
+
+    var request = await HttpClient().getUrl(Uri.parse(baseURL + "$artist/$song?apikey=$APIKey")); // create a request to the API
+    var response = await request.close(); // send the request
     String content = "";
     await for(var contents in response.transform(Utf8Decoder())) {
       content += contents;
     }
     //print(content);
     if(content == "{\"error\":\"Lyric no found, try again later.\"}") {
+      // hello
       //TODO: Show an error msg on screen
       print("Error! song not found!");
       textToDisplayOnAlert = "Song not found!";
@@ -109,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage>
         textBoxColor = Colors.blue;
       }
       lyrics = jsonObject["result"]["track"]["text"];
-      //textState = true;
     });
     textAnimation();
   }
@@ -281,6 +283,7 @@ class _MyHomePageState extends State<MyHomePage>
                               ),
                             ),
                           ),
+                          // Text(''),
                         ],
                       ),
                   ),
@@ -289,7 +292,10 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             ),
         ),
+      drawer: AppDrawer(),
       );
   }
 }
+
+
 
