@@ -18,7 +18,38 @@ class _HistoryPageState extends State<HistoryPage> {
     for (int i = 0; i < fullHistory.length; i += 4) {
       history.add(fullHistory.sublist(i, i + 4));
     }
+    await Future.delayed(const Duration(milliseconds: 200));
     return history;
+  }
+
+  showLyrics(BuildContext context, String lyrics, String artist, String song) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text(
+              '$artist - $song',
+            style: TextStyle(
+              fontSize: 28.0,
+              fontWeight: FontWeight.w400
+            ),
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: SingleChildScrollView(
+                child: Text(
+                  '$lyrics',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                  ),
+                ),
+              ),
+            )
+          ],
+        );
+      }
+    );
   }
 
   @override
@@ -33,7 +64,7 @@ class _HistoryPageState extends State<HistoryPage> {
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
               await prefs.setStringList('history', null);
-              setState(() {});
+              setState(() {}); // refresh the page after deletion fo history
             },
           )
         ],
@@ -45,8 +76,6 @@ class _HistoryPageState extends State<HistoryPage> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               var history = snapshot.data;
-              String hello = 'hello';
-              //hello.replac
               return ListView(
                 children: <Widget>[for (var search in history) Container(
                 margin: const EdgeInsets.only(bottom: 6.0),
@@ -71,14 +100,16 @@ class _HistoryPageState extends State<HistoryPage> {
                         color: Colors.grey,
                       ),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      showLyrics(context, search[2], search[0], search[1]);
+                    },
                   ),
                   )
                 ],
               );
             }
             else {
-              return CircularProgressIndicator();
+              return Center(child: SizedBox(width: 300, height: 300,child: CircularProgressIndicator()));
             }
           }
         ),

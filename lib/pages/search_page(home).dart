@@ -101,13 +101,13 @@ class _MyHomePageState extends State<MyHomePage>
 
   saveToHistory(String artist, String songName, String lyrics, dynamic date) async {
     final prefs = await SharedPreferences.getInstance();
-    final lastHistory = prefs.getStringList('history');
+    final lastHistory = prefs.getStringList('history'); // get the current search history
     if (lastHistory == null) {
       prefs.setStringList('history', [artist, songName, lyrics, date.toString()]);
     }
     else {
       lastHistory.addAll([artist, songName, lyrics, date.toString()]);
-      prefs.setStringList('history', lastHistory);
+      prefs.setStringList('history', lastHistory); // save the new history
     }
   }
 
