@@ -1,7 +1,13 @@
 # songslyricsapp
 
 A new Flutter application that gets a songs lyrics
+***
+### How the app works
+The app gets an artist and a song name from the user and sends a request to 'orion.apiseeds.com' API and gets the lyrics from it.
+When the lyrics is found it will displayed on screen in scrollable widget.
 
+Then the data is saved on the device using the Shared Preferences package, to show later in the history page (The data is unreachable to no one, except the user, and he can delete it!).
+***
 ## Getting Started
 
 This project is a starting point for a Flutter application.
