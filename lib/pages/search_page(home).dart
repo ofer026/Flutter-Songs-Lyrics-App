@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage>
       showAlertDialog(textToDisplayOnAlert);
       return;
     }
-    dynamic jsonObject = jsonDecode(content);
+    dynamic jsonObject = jsonDecode(content); // This is the response object
     setState(() {
       if (lyrics == "") {
         textBoxPaddingValue = 0.0;
@@ -90,6 +90,25 @@ class _MyHomePageState extends State<MyHomePage>
       lyrics = jsonObject["result"]["track"]["text"];
     });
     textAnimation();
+    // ---- Save Data to History -------
+    var artistName = jsonObject["result"]["artist"]["name"]; // Get the name of the artist from the response object
+    var songName = jsonObject["result"]["track"]["name"]; // Get the name of the song from the response object
+    var songLyrics = jsonObject["result"]["track"]["text"]; // Get the lyrics of the song from the response object
+    var now = new DateTime.now();
+    var date = new DateTime(now.year, now.month, now.day, now.hour, now.minute);
+    saveToHistory(artistName, songName, songLyrics, date);
+  }
+
+  saveToHistory(String artist, String songName, String lyrics, dynamic date) async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastHistory = prefs.getStringList('history');
+    if (lastHistory == null) {
+      prefs.setStringList('history', [artist, songName, lyrics, date.toString()]);
+    }
+    else {
+      lastHistory.addAll([artist, songName, lyrics, date.toString()]);
+      prefs.setStringList('history', lastHistory);
+    }
   }
 
   textAnimation() async {
@@ -129,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
     slideController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +281,6 @@ class _MyHomePageState extends State<MyHomePage>
                           ),
                         ),
                       ),
-                      // Text(''),
                     ],
                   ),
                 ),
