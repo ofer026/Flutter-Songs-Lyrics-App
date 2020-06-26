@@ -12,14 +12,14 @@ class _HistoryPageState extends State<HistoryPage> {
   Future<List<List<String>>> getHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final fullHistory = prefs.getStringList('history');
-    if (fullHistory == null) {
+    if (fullHistory == null) { // Check if the history has been created
       return [];
     }
     List<List<String>> history= [];
     for (int i = 0; i < fullHistory.length; i += 4) {
-      history.add(fullHistory.sublist(i, i + 4));
+      history.add(fullHistory.sublist(i, i + 4)); // Get each search data and save it as a list inside the history list
     }
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future.delayed(const Duration(milliseconds: 200)); // This delay is for displaying the Circular Progress Indicator on screen
     return history;
   }
 
@@ -32,19 +32,21 @@ class _HistoryPageState extends State<HistoryPage> {
           content: Text('Are you sure that you want to delete \'${song}\' by $artist?'),
           actions: <Widget>[
             FlatButton(
+              // Delete Button
               child: Text('Delete'),
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final history = prefs.getStringList('history');
+                final prefs = await SharedPreferences.getInstance(); // Get the current instance of Shared Preferences
+                final history = prefs.getStringList('history'); // Get the history data from Shared Preferences
                 history.removeRange(index, index + 4);
                 prefs.setStringList('history', history);
-                setState(() {});
-                Navigator.pop(context);
+                setState(() {}); // Rebuild the UI
+                Navigator.pop(context); // Close the dialog
               },
             ),
             FlatButton(
+              // Cancel Button
               child: Text('Cancel'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context), // Close the dialog
             )
           ],
         );

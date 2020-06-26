@@ -20,20 +20,21 @@ class _MyHomePageState extends State<MyHomePage>
   _MyHomePageState();
   String textToDisplayOnAlert = "";
 
-  AnimationController slideController;
+  AnimationController slideController; // Crete an animation controller to show the slide animation on start
   Animation<Offset> slideOffsetAnimation;
 
   String lyrics = "";
 
-  bool textState = false;
+  bool textState = false; // A variable to control an animation between searches of songs
 
   Color textBoxColor = Colors.white;
 
   double textBoxPaddingValue = 200;
 
-  final String baseURL = "https://orion.apiseeds.com/api/music/lyric/";
+  final String baseURL = "https://orion.apiseeds.com/api/music/lyric/"; // The API endpoint
   final String APIKey = "h4u5fEvPpoCj01LEObdL3oZSkT1m11XmdvLL3KeyXrkR0mTLIZOCvcze9HkcdSVW";
 
+  // Text controllers for artist and song name
   final artistTextController = TextEditingController();
   final songTextController = TextEditingController();
 
@@ -56,57 +57,57 @@ class _MyHomePageState extends State<MyHomePage>
 
 
   getLyrics() async {
+    // Get song and artist name from user (Text fields)
     String artist = artistTextController.text.toString();
     String song = songTextController.text.toString();
 
-    if(artist == '' || song == '') {
-      textToDisplayOnAlert = "One of the fields is empty!";
-      showAlertDialog(textToDisplayOnAlert);
-      return;
+    if(artist == '' || song == '') { // Checks if one or both of the fields are empty
+      textToDisplayOnAlert = "One of the fields is empty!"; // Set the text to display on the alert dialog
+      showAlertDialog(textToDisplayOnAlert); // Display the alert dialog
+      return; // End the execution of the function
     }
 
 
     var request = await HttpClient().getUrl(Uri.parse(baseURL + "$artist/$song?apikey=$APIKey")); // create a request to the API
     var response = await request.close(); // send the request
-    String content = "";
+    String content = ""; // A variable to store the content of the response from the API
     await for(var contents in response.transform(Utf8Decoder())) {
       content += contents;
     }
     //print(content);
-    if(content == "{\"error\":\"Lyric no found, try again later.\"}") {
-      // hello
-      //TODO: Show an error msg on screen
-      print("Error! song not found!");
-      textToDisplayOnAlert = "Song not found!";
-      showAlertDialog(textToDisplayOnAlert);
-      return;
+    if(content == "{\"error\":\"Lyric no found, try again later.\"}") { // Checks if the lyrics for the song are not found
+      //print("Error! song not found!");
+      textToDisplayOnAlert = "Song not found!"; // Set the text to display on the alert dialog
+      showAlertDialog(textToDisplayOnAlert);// Display the alert dialog
+      return; // End the execution of the function
     }
     dynamic jsonObject = jsonDecode(content); // This is the response object
     setState(() {
-      if (lyrics == "") {
+      if (lyrics == "") { // If this is the first search another animation will appear (the text box will scale up)
         textBoxPaddingValue = 0.0;
         textBoxColor = Colors.blue;
       }
-      lyrics = jsonObject["result"]["track"]["text"];
+      lyrics = jsonObject["result"]["track"]["text"]; // Get the lyrics from the response object and store in the global variable for displaying
     });
-    textAnimation();
+    textAnimation(); // Start a text animation between searches
     // ---- Save Data to History -------
     var artistName = jsonObject["result"]["artist"]["name"]; // Get the name of the artist from the response object
     var songName = jsonObject["result"]["track"]["name"]; // Get the name of the song from the response object
     var songLyrics = jsonObject["result"]["track"]["text"]; // Get the lyrics of the song from the response object
     var now = new DateTime.now();
-    var date = new DateTime(now.year, now.month, now.day, now.hour, now.minute);
-    saveToHistory(artistName, songName, songLyrics, date);
+    var date = new DateTime(now.year, now.month, now.day, now.hour, now.minute); // Get the current date and time
+    saveToHistory(artistName, songName, songLyrics, date); // Save to local storage the artist, song name, lyrics and date (To display on history page)
   }
 
+  // This function saves the a search query to the local storage (using Shared Preferences), to display later on history page
   saveToHistory(String artist, String songName, String lyrics, dynamic date) async {
     final prefs = await SharedPreferences.getInstance();
-    final lastHistory = prefs.getStringList('history'); // get the current search history
+    final lastHistory = prefs.getStringList('history'); // get the current search history from local storage
     if (lastHistory == null) {
-      prefs.setStringList('history', [artist, songName, lyrics, date.toString()]);
+      prefs.setStringList('history', [artist, songName, lyrics, date.toString()]); // if history is empty the current query will be saved solo
     }
     else {
-      lastHistory.addAll([artist, songName, lyrics, date.toString()]);
+      lastHistory.addAll([artist, songName, lyrics, date.toString()]); // Save the current query to the history
       prefs.setStringList('history', lastHistory); // save the new history
     }
   }
@@ -301,7 +302,6 @@ class _MyHomePageState extends State<MyHomePage>
           ),
         ),
       ),
-      //drawer: AppDrawer(),
     );
   }
 }
