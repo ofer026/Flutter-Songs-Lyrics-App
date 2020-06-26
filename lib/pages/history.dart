@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 class HistoryPage extends StatefulWidget {
   @override
   _HistoryPageState createState() => _HistoryPageState();
@@ -20,6 +21,35 @@ class _HistoryPageState extends State<HistoryPage> {
     }
     await Future.delayed(const Duration(milliseconds: 200));
     return history;
+  }
+
+  showDeleteMessage(BuildContext context, String artist, String song, int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete'),
+          content: Text('Are you sure that you want to delete \'${song}\' by $artist?'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Delete'),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final history = prefs.getStringList('history');
+                history.removeRange(index, index + 4);
+                prefs.setStringList('history', history);
+                setState(() {});
+                Navigator.pop(context);
+              },
+            ),
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      }
+    );
   }
 
   showLyrics(BuildContext context, String lyrics, String artist, String song) {
@@ -68,7 +98,20 @@ class _HistoryPageState extends State<HistoryPage> {
             },
           )
         ],
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: <Color>[
+                    Colors.blueAccent,
+                    Colors.blue,
+                    Colors.lightBlue,
+                    Colors.lightBlueAccent,
+                  ]
+              )
+          ),
+        ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 12.0),
         child: FutureBuilder(
@@ -83,26 +126,38 @@ class _HistoryPageState extends State<HistoryPage> {
                     border: Border.all(
                         width: 2.0,
                         color: Colors.black
-                      )
+                      ),
+                  gradient: LinearGradient(
+                    colors: <Color>[
+                      Color(0xFF43CBFF), // Light blue
+                      Color(0xFF9708CC), // Indigo
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight
+                  )
                     ),
                   child: ListTile(
                     title: Text(
                         '${search[0]} - ${search[1]}',
                         style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.w200,
+                          fontFamily: "Aeonik"
                         ),
                     ),
                     subtitle: Text(
                       '${search[3].replaceFirst(':00.000', '')}',
                       style: TextStyle(
                         fontSize: 16.0,
-                        color: Colors.grey,
+                        color: Color(0xFF4D4D4D), // The color is grey
                       ),
                     ),
                     onTap: () {
                       showLyrics(context, search[2], search[0], search[1]);
                     },
+                    onLongPress: () {
+                      showDeleteMessage(context, search[0], search[1], history.indexOf(search));
+                      },
                   ),
                   )
                 ],

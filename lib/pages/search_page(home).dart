@@ -15,7 +15,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin{
+    with SingleTickerProviderStateMixin {
 
   _MyHomePageState();
   String textToDisplayOnAlert = "";
@@ -156,6 +156,18 @@ class _MyHomePageState extends State<MyHomePage>
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text("Songs Lyrics App"),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: <Color>[
+                Colors.blueAccent,
+                Colors.blue,
+                Colors.lightBlue,
+                Colors.lightBlueAccent,
+              ]
+            )
+          ),
+        ),
       ),
       body:
       SlideTransition(

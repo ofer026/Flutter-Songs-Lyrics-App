@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:songslyricsapp/pages/history.dart';
 import 'package:songslyricsapp/blocs/pages_bloc.dart';
 import 'package:songslyricsapp/pages/search_page(home).dart';
+import 'package:gradient_bottom_navigation_bar/gradient_bottom_navigation_bar.dart';
 
 class MainScaffold extends StatelessWidget {
 
@@ -27,12 +28,13 @@ class MainScaffold extends StatelessWidget {
             HistoryPage()
           ]
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: GradientBottomNavigationBar(
+        backgroundColorStart: Color(0xFF3C8CE7),
+        backgroundColorEnd: Color(0xFF00EAFF),
         currentIndex: displayManagment.pageIndex,
-        //fixedColor: Colors.green,
+        fixedColor: Colors.deepPurple,
         //backgroundColor: displayManagment.backgroundColors[displayManagment.pageIndex],
-        //backgroundColor: ,
-        elevation: 200,
+        //elevation: 400,
         items: [
           BottomNavigationBarItem(
               icon: Icon(Icons.home),
