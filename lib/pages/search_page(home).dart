@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity/connectivity.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -32,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage>
   double textBoxPaddingValue = 200;
 
   final String baseURL = "https://orion.apiseeds.com/api/music/lyric/"; // The API endpoint
-  final String APIKey = "h4u5fEvPpoCj01LEObdL3oZSkT1m11XmdvLL3KeyXrkR0mTLIZOCvcze9HkcdSVW";
+  final String APIKey = "h4u5fEvPpoCj01LEObdL3oZSkT1m11XmdvLL3KeyXrkR0mTLIZOCvcze9HkcdSVW"; // API key
 
   // Text controllers for artist and song name
   final artistTextController = TextEditingController();
@@ -55,11 +56,30 @@ class _MyHomePageState extends State<MyHomePage>
     ));
   }
 
+  Future<bool> checkConnectivity() async {
+    // Checks connectivity to the internet using 'Connectivity' package
+    var result = await Connectivity().checkConnectivity();
+    if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
 
   getLyrics() async {
     // Get song and artist name from user (Text fields)
     String artist = artistTextController.text.toString();
     String song = songTextController.text.toString();
+
+    bool isConnetedInternet = await checkConnectivity(); // Check if the device is connected to the internet
+    //print("Connectivity list is: ${ConnectivityResult.values}");
+    if (!isConnetedInternet) { // Check if there is no connection to the internet
+      textToDisplayOnAlert = "You are not connected to the internet";
+      showAlertDialog(textToDisplayOnAlert);
+      return;
+    }
 
     if(artist == '' || song == '') { // Checks if one or both of the fields are empty
       textToDisplayOnAlert = "One of the fields is empty!"; // Set the text to display on the alert dialog
@@ -85,7 +105,8 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       if (lyrics == "") { // If this is the first search another animation will appear (the text box will scale up)
         textBoxPaddingValue = 0.0;
-        textBoxColor = Colors.blue;
+        //textBoxColor = Colors.blue;
+        textBoxColor = Color(0xFF000066);
       }
       lyrics = jsonObject["result"]["track"]["text"]; // Get the lyrics from the response object and store in the global variable for displaying
     });
@@ -186,70 +207,77 @@ class _MyHomePageState extends State<MyHomePage>
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Column(
-                        //mainAxisAlignment: MainAxisAlignment.start,
-                        //mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Artist",
-                              textAlign: TextAlign.start,
-                              style: TextStyle(fontSize: 20),
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.35,
+                        child: Column(
+                          children: <Widget>[
+                            Column(
+                              //mainAxisAlignment: MainAxisAlignment.start,
+                              //mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text("Artist",
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 14),
-                      TextField(
-                        decoration: InputDecoration(
-                            hintText: "Enter artist name",
-                            focusedBorder: UnderlineInputBorder(
+                            SizedBox(height: 14),
+                            TextField(
+                              decoration: InputDecoration(
+                                  hintText: "Enter artist name",
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.black,
+                                        width: 1.6,
+                                      )
+                                  )
+                              ),
+                              controller: artistTextController,
+                            ),
+                            SizedBox(height: 30,),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("Song",
+                                textAlign: TextAlign.start,
+                                style: TextStyle(fontSize: 20),),
+                            ),
+                            SizedBox(height: 14,),
+                            TextField(
+                              decoration: InputDecoration(
+                                  hintText: "Enter song name",
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.black,
+                                          width: 1.6
+                                      )
+                                  )
+                              ),
+                              controller: songTextController,
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(top: 4.0),
+                              child: OutlineButton(
+                                child: Text("Get lyrics"),
+                                onPressed: () => getLyrics(),
+                                highlightedBorderColor: Colors.black,
                                 borderSide: BorderSide(
-                                  color: Colors.black,
-                                  width: 1.6,
-                                )
-                            )
+                                    width: 2,
+                                    color: Colors.black
+                                ),
+                              ),
+                            ),
+                            Container(
+                              //padding: const EdgeInsets.only(top: 15, bottom: 15),
+                              margin: const EdgeInsets.only(top: 2.0, bottom: 8),
+                              width: MediaQuery.of(context).size.width,
+                              height: 2,
+                              color: Colors.black,
+                            ),
+                          ],
                         ),
-                        controller: artistTextController,
-                      ),
-                      SizedBox(height: 30,),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text("Song",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(fontSize: 20),),
-                      ),
-                      SizedBox(height: 14,),
-                      TextField(
-                        decoration: InputDecoration(
-                            hintText: "Enter song name",
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.6
-                                )
-                            )
-                        ),
-                        controller: songTextController,
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 4.0),
-                        child: OutlineButton(
-                          child: Text("Get lyrics"),
-                          onPressed: () => getLyrics(),
-                          highlightedBorderColor: Colors.black,
-                          borderSide: BorderSide(
-                              width: 2,
-                              color: Colors.black
-                          ),
-                        ),
-                      ),
-                      Container(
-                        //padding: const EdgeInsets.only(top: 15, bottom: 15),
-                        margin: const EdgeInsets.only(top: 2.0, bottom: 8),
-                        width: MediaQuery.of(context).size.width,
-                        height: 2,
-                        color: Colors.black,
                       ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
@@ -263,7 +291,7 @@ class _MyHomePageState extends State<MyHomePage>
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     color: textBoxColor,
-                                    width: 1.0
+                                    width: 2.8
                                 )
                             ),
                             child: DraggableScrollableSheet(
