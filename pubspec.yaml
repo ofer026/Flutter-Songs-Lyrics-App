@@ -35,6 +35,7 @@ dependencies:
   provider:
   # UI
   gradient_bottom_navigation_bar: ^1.0.0+4
+  curved_navigation_bar: ^0.3.3
   # Internet 
   connectivity: ^0.4.9
 

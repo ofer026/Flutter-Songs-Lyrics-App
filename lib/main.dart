@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:songslyricsapp/CustomWidgets/drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:songslyricsapp/blocs/pages_bloc.dart';
 import 'package:songslyricsapp/main_page.dart';

@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage>
   Future<bool> checkConnectivity() async {
     // Checks connectivity to the internet using 'Connectivity' package
     var result = await Connectivity().checkConnectivity();
-    if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
+    if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) { // Checks if the device is connected to the internet via either mobile data or wifi
       return true;
     }
     else {

@@ -37,7 +37,8 @@ class _HistoryPageState extends State<HistoryPage> {
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance(); // Get the current instance of Shared Preferences
                 final history = prefs.getStringList('history'); // Get the history data from Shared Preferences
-                history.removeRange(index, index + 4);
+                print(history.sublist(index * 3 + index, (index * 3 + index) + 4));
+                history.removeRange(index * 3 + index, (index * 3 + index) + 4);
                 prefs.setStringList('history', history);
                 setState(() {}); // Rebuild the UI
                 Navigator.pop(context); // Close the dialog
